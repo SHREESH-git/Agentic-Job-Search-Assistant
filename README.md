@@ -1,22 +1,53 @@
-<div align="center">
-  <img src="assets/banner.png" alt="FreeJobAgent: resume in, ranked job matches out" width="100%" />
-</div>
+# Agentic Job Search Assistant
 
-<br />
-
-**FreeJobAgent** reads your PDF resume, scrapes live openings from **LinkedIn**, **Indeed** and **Google Jobs**, and asks an LLM of your choice to rank the best matches, with apply links and tailored application tips.
-
-It works with **any OpenAI-compatible API** (OpenAI, OpenRouter, Groq, Gemini, Ollama, LM Studio, ...). You supply an API key and a base URL; the app fetches the list of available models from that URL for you.
+A job search assistant that retrieves live job listings from LinkedIn, Indeed, and Google Jobs, analyses candidate resumes, and ranks opportunities based on skills, experience, and preferences.
 
 ---
 
-## How it works
+## Overview
 
+Finding relevant internships and job opportunities across multiple platforms can be time-consuming. This project automates job discovery and candidate-job matching through an agent-based workflow.
+
+The application uses LangChain for agent orchestration, MCP for connecting external job-search tools, and JobSpy for retrieving job listings. Configurable LLMs process PDF resumes, extract candidate information, and analyse job requirements to generate relevant recommendations.
+
+---
+
+## Architecture
+
+```mermaid
+flowchart TD
+    A["PDF Resume"] --> B["Streamlit UI"]
+    B --> C["LangChain Agent"]
+
+    C --> D["MCP Server"]
+    C <--> E["Configurable LLM<br/>(OpenAI / Gemini / Groq / Ollama)"]
+
+    D --> F["JobSpy"]
+    F --> G["LinkedIn"]
+    F --> H["Indeed"]
+    F --> I["Google Jobs"]
+
+    G --> J["Retrieved Job Listings"]
+    H --> J
+    I --> J
+
+    J --> K["Job Description Analysis"]
+    E --> K
+
+    K --> L["Candidate-Job Matching"]
+    L --> M["Job Ranking"]
+    M --> N["Ranked Job Recommendations"]
+    N --> O["Apply Links & Matching Insights"]
+
+    style A fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style C fill:#ede9fe,stroke:#7c3aed,color:#4c1d95
+    style D fill:#fef3c7,stroke:#d97706,color:#78350f
+    style E fill:#dcfce7,stroke:#16a34a,color:#14532d
+    style O fill:#dcfce7,stroke:#16a34a,color:#14532d
+'''
 ```
-PDF resume ──► Streamlit UI ──► LangChain agent ──► MCP server ──► JobSpy ──► LinkedIn / Indeed / Google Jobs
-                                      │
-                                      └── your LLM (LLM_BASE_URL + LLM_API_KEY)
-```
+
+## How it works
 
 1. You upload a resume and (optionally) tweak work type, experience level and location.
 2. The agent extracts your role, seniority and location, then calls two MCP tools: a filtered job search and a broader second pass.
