@@ -8,7 +8,7 @@ A job search assistant that retrieves live job listings from LinkedIn, Indeed, a
 
 Finding relevant internships and job opportunities across multiple platforms can be time-consuming. This project automates job discovery and candidate-job matching through an agent-based workflow.
 
-The application uses LangChain for agent orchestration, MCP for connecting external job-search tools, and JobSpy for retrieving job listings. Configurable LLMs process PDF resumes, extract candidate information, and analyse job requirements to generate relevant recommendations.
+The application uses LangChain for agent orchestration, MCP for connecting external job-search tools, and JobSpy for retrieving job listings. Configurable LLMs combined with RAG using Sentence Transformers and FAISS process PDF resumes, retrieve relevant candidate information, extract skills and preferences, and analyse job requirements to generate personalized job recommendations.
 
 ---
 
@@ -18,6 +18,12 @@ The application uses LangChain for agent orchestration, MCP for connecting exter
 flowchart TD
     A["PDF Resume"] --> B["Streamlit UI"]
     B --> C["LangChain Agent"]
+
+    A --> P["Resume Parsing"]
+    P --> Q["Sentence Transformers<br/>Embeddings"]
+    Q --> R["FAISS Vector Store"]
+    R --> S["Semantic Retrieval"]
+    S --> T["Relevant Candidate Context"]
 
     C --> D["MCP Server"]
     C <--> E["Configurable LLM<br/>(OpenAI / Gemini / Groq / Ollama)"]
@@ -34,7 +40,10 @@ flowchart TD
     J --> K["Job Description Analysis"]
     E --> K
 
-    K --> L["Candidate-Job Matching"]
+    T --> L["Candidate-Job Matching"]
+    K --> L
+    E --> L
+
     L --> M["Job Ranking"]
     M --> N["Ranked Job Recommendations"]
     N --> O["Apply Links & Matching Insights"]
@@ -43,6 +52,7 @@ flowchart TD
     style C fill:#ede9fe,stroke:#7c3aed,color:#4c1d95
     style D fill:#fef3c7,stroke:#d97706,color:#78350f
     style E fill:#dcfce7,stroke:#16a34a,color:#14532d
+    style R fill:#fef3c7,stroke:#d97706,color:#78350f
     style O fill:#dcfce7,stroke:#16a34a,color:#14532d
 '''
 ```
@@ -146,6 +156,8 @@ MCP tools exposed by `mcp_server.py`: `search_jobs_tool` (filtered), `search_job
 |-----------|-----------|
 | UI | Streamlit |
 | Agent | LangChain + LangGraph, any OpenAI-compatible LLM |
+| Retrieval & Embeddings | RAG, Sentence Transformers |
+| Vector Database | FAISS |
 | Tool protocol | MCP via FastMCP |
 | Job scraper | JobSpy (LinkedIn, Indeed, Google Jobs) |
 | Resume parser | PyPDFLoader |
